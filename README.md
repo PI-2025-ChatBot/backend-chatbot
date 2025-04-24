@@ -1,5 +1,5 @@
 # chatbot
-<h1>Tutorial para conseguir rodar locl</h1>
+<h1>Tutorial para conseguir rodar local</h1>
 <div style="display: flex; gap: 10px; flex-wrap: wrap;">
   <img src="./imagens_tutorial/image.png">
   <img src="./imagens_tutorial/image2.png">
