@@ -1,4 +1,8 @@
-import uuid
+from supabase import create_client, Client
+SUPABASE_URL = "https://zunahsztxrsteancdzkf.supabase.co"  # Substitua pela URL do seu projeto
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1bmFoc3p0eHJzdGVhbmNkemtmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1MTQxMjEsImV4cCI6MjA2MTA5MDEyMX0.Wndqn0SjlLfPDPQeSbg0NDijxW4jIH_Yq523wVOQS94"  # Substitua pela chave de API pública/anon
+TABLE_NAME = "Pedidos"  # Nome da tabela no Supabase
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 menu_pratos = {
     "1": "arroz, feijão e fritas",
@@ -87,7 +91,19 @@ while True:
         if msg == "1":
             estado = "menu"
         elif msg == "2":
-            numero_pedido = str(uuid.uuid4())
+            # Variável que será enviada para o banco de dados
+            prato = pedido.get('prato', 'nenhum')
+            bebida = pedido.get('bebida', 'nenhuma')
+
+            # Insere os dados na tabela
+            if cancelado == False:
+                try:
+                    response = supabase.table(TABLE_NAME).insert({"prato": prato, "bebida": bebida}).execute()
+                    print("Dados inseridos com sucesso!")
+                    # print("Resposta do Supabase:", response)
+                except Exception as e:
+                    print("Erro ao inserir dados no Supabase:", e)
+            numero_pedido = response.data[0]['id']
             print("\nbot: pedido confirmado")
             print(f"\nbot: número do pedido: {numero_pedido}")
             break
@@ -98,21 +114,5 @@ while True:
         else:
             print("\nbot: Opção inválida. Digite 0, 1 ou 2.")
 
-from supabase import create_client, Client
 
-SUPABASE_URL = "https://zunahsztxrsteancdzkf.supabase.co"  # Substitua pela URL do seu projeto
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1bmFoc3p0eHJzdGVhbmNkemtmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1MTQxMjEsImV4cCI6MjA2MTA5MDEyMX0.Wndqn0SjlLfPDPQeSbg0NDijxW4jIH_Yq523wVOQS94"  # Substitua pela chave de API pública/anon
-TABLE_NAME = "Pedidos"  # Nome da tabela no Supabase
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-# Variável que será enviada para o banco de dados
-prato = pedido.get('prato', 'nenhum')
-bebida = pedido.get('bebida', 'nenhuma')
 
-# Insere os dados na tabela
-if cancelado == False:
-    try:
-        response = supabase.table(TABLE_NAME).insert({"prato": prato, "bebida": bebida}).execute()
-        print("Dados inseridos com sucesso!")
-        print("Resposta do Supabase:", response)
-    except Exception as e:
-        print("Erro ao inserir dados no Supabase:", e)
