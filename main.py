@@ -27,6 +27,7 @@ usuarios = {}
 @app.route("/whatsapp", methods=["POST"])
 def whatsapp():
     numero = request.form.get("From")
+    numero_limpo = numero.replace("whatsapp:","")
     msg = request.form.get("Body").strip()
     response = MessagingResponse()
     reply = response.message()
@@ -100,13 +101,15 @@ def whatsapp():
 
     elif estado == "confirmacao":
         if msg == "1":
-            user["estado"] = "menu"
+            pedido = {}
             reply.body("Você pode alterar seu pedido agora.")
+            user["estado"] = "inicio"
         elif msg == "2":
             try:
                 result = supabase.table(TABLE_NAME).insert({
                     "prato": pedido.get('prato', 'nenhum'),
-                    "bebida": pedido.get('bebida', 'nenhuma')
+                    "bebida": pedido.get('bebida', 'nenhuma'),
+                    "numero": numero_limpo
                 }).execute()
 
                 print("✅ Supabase resultado:", result)
