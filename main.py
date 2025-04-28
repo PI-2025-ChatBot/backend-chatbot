@@ -5,7 +5,7 @@ from supabase import create_client, Client
 app = Flask(__name__)
 
 SUPABASE_URL = "https://zunahsztxrsteancdzkf.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1bmFoc3p0eHJzdGVhbmNkemtmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1MTQxMjEsImV4cCI6MjA2MTA5MDEyMX0.Wndqn0SjlLfPDPQeSbg0NDijxW4jIH_Yq523wVOQS94"  # Substitua por segurança
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1bmFoc3p0eHJzdGVhbmNkemtmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1MTQxMjEsImV4cCI6MjA2MTA5MDEyMX0.Wndqn0SjlLfPDPQeSbg0NDijxW4jIH_Yq523wVOQS94"
 TABLE_NAME = "Pedidos"
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
@@ -52,7 +52,7 @@ def whatsapp():
     estado = user["estado"]
     pedido = user["pedido"]
     total = user["total"]
-
+    
     if estado == "inicio":
         reply.body("Olá, aqui é o bot de atendimento do restaurante Comida Boa. 🤖\nDigite o número da opção desejada:\n1 - Escolher prato\n2 - Escolher bebida")
         user["estado"] = "menu"
@@ -78,8 +78,8 @@ def whatsapp():
             prato_escolhido = menu_pratos[msg]
             total += float(prato_escolhido.split("R$ ")
                            [1].split(" - ")[0].replace(",", "."))
-            pedido["prato"] = menu_pratos[msg]
-            reply.body(f"Você escolheu: {prato_escolhido}")
+            pedido["prato"] = prato_escolhido
+            reply.body(f"Você escolheu: {prato_escolhido}") 
             reply.body("Confirmar este prato?\n1 - Sim\n2 - Não, quero escolher outro\n0 - Voltar ao menu principal")
             user["estado"] = "confirmar_prato"
         elif msg == "0":
@@ -90,20 +90,19 @@ def whatsapp():
         
     elif estado == "confirmar_prato":
         if msg == "1":
-            pedido["prato"] = prato_escolhido
             reply.body(f"Prato confirmado: {pedido['prato']}")
             reply.body('Deseja escolher sua bebida?\n0 - voltar\n1 - sim\n2 - não')
             estado = "pergunta_bebida"
         elif msg == "2":
-            reply.body("Escolha o prato que deseja:\n")
-            reply.body('0 - voltar\n')
+            texto = "Escolha o prato que deseja:\n0 - Voltar\n"
             for key, value in menu_pratos.items():
-                reply.body(f'{key} - {value}\n')
-            estado = "menu"
+                texto += f"{key} - {value}\n"
+            reply.body(texto)
+            user["estado"] = "escolhendo_prato"
         elif msg == "0":
             estado = "inicio"
         else:
-            print('Opção inválida. Tente novamente.')
+            reply.body('Opção inválida. Tente novamente.')
 
 
     elif estado == "pergunta_bebida":

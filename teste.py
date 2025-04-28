@@ -10,7 +10,11 @@ menu_pratos = {
     "2": "R$ 26,99 - Salada com atum",
     "3": "R$ 31,99 - Salada com kibe vegano ou quiche",
     "4": "R$ 27,99 - Salada ceaser",
-    "5": "R$ 26,99 - Salada com omelete"
+    "5": "R$ 26,99 - Salada com omelete",
+    "6": "R$ 28,99 - Filé de frango grelhado",
+    "7": "R$ 28,99 - Linguiça calabresa acebolada",
+    "8": "R$ 28,99 - Linguiça toscana grelhada",
+    "9": "R$ 28,99 - Nuggets de frango"
 }
 
 menu_bebidas = {
