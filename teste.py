@@ -1,8 +1,8 @@
 from supabase import create_client, Client
-# Substitua pela URL do seu projeto
+
 SUPABASE_URL = "https://zunahsztxrsteancdzkf.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1bmFoc3p0eHJzdGVhbmNkemtmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1MTQxMjEsImV4cCI6MjA2MTA5MDEyMX0.Wndqn0SjlLfPDPQeSbg0NDijxW4jIH_Yq523wVOQS94"  # Substitua pela chave de API pública/anon
-TABLE_NAME = "Pedidos"  # Nome da tabela no Supabase
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1bmFoc3p0eHJzdGVhbmNkemtmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1MTQxMjEsImV4cCI6MjA2MTA5MDEyMX0.Wndqn0SjlLfPDPQeSbg0NDijxW4jIH_Yq523wVOQS94"
+TABLE_NAME = "Pedidos"
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 menu_pratos = {
@@ -14,8 +14,8 @@ menu_pratos = {
 }
 
 menu_bebidas = {
-    "1": "R$ 5,99 - Cola-Cola",
-    "2": "R$ 5,99 - Cola-Cola Zero",
+    "1": "R$ 5,99 - Coca-Cola",
+    "2": "R$ 5,99 - Coca-Cola Zero",
     "3": "R$ 7,99 - Suco de laranja",
     "4": "R$ 7,99 - Suco de uva",
     "5": "R$ 6,99 - Água com gás",
@@ -53,13 +53,12 @@ while True:
         msg = input("usuario: \n").strip()
         if msg in menu_pratos:
             prato_escolhido = menu_pratos[msg]
-            # Subtrai o valor do prato anterior, se houver
             if "prato" in pedido:
-                total -= float(pedido["prato"].split("R$ ")[1].split(" - ")[0].replace(",", "."))
-            # Atualiza o prato no pedido
+                total -= float(pedido["prato"].split("R$ ")
+                               [1].split(" - ")[0].replace(",", "."))
             pedido["prato"] = prato_escolhido
-            # Adiciona o valor do novo prato
-            total += float(prato_escolhido.split("R$ ")[1].split(" - ")[0].replace(",", "."))
+            total += float(prato_escolhido.split("R$ ")
+                           [1].split(" - ")[0].replace(",", "."))
             print(f"\nbot: Você escolheu: {prato_escolhido}")
             print("bot: Confirmar este prato?\n1 - Sim\n2 - Não, quero escolher outro\n0 - Voltar ao menu principal")
             estado = "confirmar_prato"
@@ -104,18 +103,22 @@ while True:
         msg = input("usuario: \n").strip()
         if msg in menu_bebidas:
             bebida_escolhida = menu_bebidas[msg]
-            # Subtrai o valor da bebida anterior, se houver
             if "bebida" in pedido:
-                total -= float(pedido["bebida"].split("R$ ")[1].split(" - ")[0].replace(",", "."))
-            # Atualiza a bebida no pedido
+                total -= float(pedido["bebida"].split("R$ ")
+                               [1].split(" - ")[0].replace(",", "."))
             pedido["bebida"] = bebida_escolhida
-            # Adiciona o valor da nova bebida
-            total += float(bebida_escolhida.split("R$ ")[1].split(" - ")[0].replace(",", "."))
+            total += float(bebida_escolhida.split("R$ ")
+                           [1].split(" - ")[0].replace(",", "."))
             print(f'\nbot: Você escolheu: {bebida_escolhida}')
             print('bot: Confirmar esta bebida?\n1 - Sim\n2 - Não, quero escolher outra\n0 - Voltar ao menu principal')
             estado = "confirmar_bebida"
+        elif msg == "0":
+            estado = "inicio"
         else:
-            print("\nbot: Vi que você não escolheu nenhuma das opções acima.\nEscolha uma das opções para eu te ajudar!")
+            print("\nbot: Escolha inválida. Tente novamente.")
+            print("\nbot: Escolha a bebida que deseja:")
+            for key, value in menu_bebidas.items():
+                print(f"{key} - {value}")
 
     elif estado == "confirmar_bebida":
         msg = input("usuario: \n").strip()
@@ -136,7 +139,7 @@ while True:
         print("\nbot: resumo do pedido:")
         print(f"prato: {pedido.get('prato', 'nenhum')}")
         print(f"bebida: {pedido.get('bebida', 'nenhuma')}")
-        print(f"Total: R$ {total:.2f}")
+        print(f"Total: R$ {total:.2f}".replace(".", ","))
         print("\nbot: deseja alterar ou confirmar o pedido?\n0 - cancelar pedido\n1 - alterar\n2 - confirmar pedido")
         estado = "confirmacao"
 
@@ -144,14 +147,12 @@ while True:
         msg = input("usuario: \n").strip()
         if msg == "1":
             estado = "menu"
-            # Exibe o menu principal novamente
-            print("\nbot: Digite o número da opção desejada:\n1 - Escolher prato\n2 - Escolher bebida\n")
+            print(
+                "\nbot: Digite o número da opção desejada:\n1 - Escolher prato\n2 - Escolher bebida\n")
         elif msg == "2":
-            # Variável que será enviada para o banco de dados
             prato = pedido.get('prato', 'nenhum')
             bebida = pedido.get('bebida', 'nenhuma')
 
-            # Insere os dados na tabela
             if cancelado == False:
                 try:
                     response = supabase.table(TABLE_NAME).insert({
@@ -160,12 +161,12 @@ while True:
                         "total": total
                     }).execute()
                     print("Pedido armazenado com sucesso!")
-                    # print("Resposta do Supabase:", response)
+                    numero_pedido = response.data[0]['id']
                 except Exception as e:
                     print("Erro ao inserir dados no Supabase:", e)
-            numero_pedido = response.data[0]['id']
             print("\nbot: pedido confirmado")
             print(f"\nbot: número do pedido: {numero_pedido}")
+            print("\nbot: Obrigado pela preferência! Até a próxima!")
             break
         elif msg == "0":
             print("Até mais!")
