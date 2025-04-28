@@ -53,7 +53,7 @@ def whatsapp():
     estado = user["estado"]
     pedido = user["pedido"]
     total = user["total"]
-
+    
     if estado == "inicio":
         reply.body("Olá, aqui é o bot de atendimento do restaurante Comida Boa.\nDigite o número da opção desejada:\n1 - Escolher prato\n2 - Escolher bebida")
         user["estado"] = "menu"
