@@ -53,8 +53,13 @@ while True:
         msg = input("usuario: \n").strip()
         if msg in menu_pratos:
             prato_escolhido = menu_pratos[msg]
-            total += float(prato_escolhido.split("R$ ")
-                           [1].split(" - ")[0].replace(",", "."))
+            # Subtrai o valor do prato anterior, se houver
+            if "prato" in pedido:
+                total -= float(pedido["prato"].split("R$ ")[1].split(" - ")[0].replace(",", "."))
+            # Atualiza o prato no pedido
+            pedido["prato"] = prato_escolhido
+            # Adiciona o valor do novo prato
+            total += float(prato_escolhido.split("R$ ")[1].split(" - ")[0].replace(",", "."))
             print(f"\nbot: Você escolheu: {prato_escolhido}")
             print("bot: Confirmar este prato?\n1 - Sim\n2 - Não, quero escolher outro\n0 - Voltar ao menu principal")
             estado = "confirmar_prato"
@@ -66,7 +71,6 @@ while True:
     elif estado == "confirmar_prato":
         msg = input("usuario: \n").strip()
         if msg == "1":
-            pedido["prato"] = prato_escolhido
             print(f"\nbot: Prato confirmado: {pedido['prato']}")
             print('\nbot: deseja escolher sua bebida?\n0 - voltar\n1 - sim\n2 - não')
             estado = "pergunta_bebida"
@@ -100,8 +104,13 @@ while True:
         msg = input("usuario: \n").strip()
         if msg in menu_bebidas:
             bebida_escolhida = menu_bebidas[msg]
-            total += float(bebida_escolhida.split("R$ ")
-                           [1].split(" - ")[0].replace(",", "."))
+            # Subtrai o valor da bebida anterior, se houver
+            if "bebida" in pedido:
+                total -= float(pedido["bebida"].split("R$ ")[1].split(" - ")[0].replace(",", "."))
+            # Atualiza a bebida no pedido
+            pedido["bebida"] = bebida_escolhida
+            # Adiciona o valor da nova bebida
+            total += float(bebida_escolhida.split("R$ ")[1].split(" - ")[0].replace(",", "."))
             print(f'\nbot: Você escolheu: {bebida_escolhida}')
             print('bot: Confirmar esta bebida?\n1 - Sim\n2 - Não, quero escolher outra\n0 - Voltar ao menu principal')
             estado = "confirmar_bebida"
@@ -111,7 +120,6 @@ while True:
     elif estado == "confirmar_bebida":
         msg = input("usuario: \n").strip()
         if msg == "1":
-            pedido["bebida"] = bebida_escolhida
             print(f'\nbot: Bebida confirmada: {pedido["bebida"]}')
             estado = "resumo"
         elif msg == "2":
@@ -136,6 +144,8 @@ while True:
         msg = input("usuario: \n").strip()
         if msg == "1":
             estado = "menu"
+            # Exibe o menu principal novamente
+            print("\nbot: Digite o número da opção desejada:\n1 - Escolher prato\n2 - Escolher bebida\n")
         elif msg == "2":
             # Variável que será enviada para o banco de dados
             prato = pedido.get('prato', 'nenhum')
