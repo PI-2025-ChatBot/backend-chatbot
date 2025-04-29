@@ -1,7 +1,7 @@
 from supabase import create_client, Client
 
 SUPABASE_URL = "https://zunahsztxrsteancdzkf.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1bmFoc3p0eHJzdGVhbmNkemtmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1MTQxMjEsImV4cCI6MjA2MTA5MDEyMX0.Wndqn0SjlLfPDPQeSbg0NDijxW4jIH_Yq523wVOQS94"
 TABLE_NAME = "Pedidos"
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
@@ -56,12 +56,12 @@ while True:
         if msg == "1":
             print("Escolha o prato que deseja:")
             mostrar_menu(menu_pratos)
-            print("0 - Voltar")
+            print("0 - Voltar ao menu principal")
             usuario["estado"] = "escolhendo_prato"
         elif msg == "2":
             print("Escolha a bebida que deseja:")
             mostrar_menu(menu_bebidas)
-            print("0 - Voltar")
+            print("0 - Voltar ao menu principal")
             usuario["estado"] = "escolhendo_bebida"
         else:
             print("Opção inválida. Digite 1 ou 2.")
@@ -79,6 +79,7 @@ while True:
             print("Confirmar este prato?\n1 - Sim\n2 - Não, quero escolher outro\n0 - Voltar ao menu principal")
             usuario["estado"] = "confirmar_prato"
         elif msg == "0":
+            print("Digite o número da opção desejada:\n1 - Escolher prato\n2 - Escolher bebida")
             usuario["estado"] = "menu"
         else:
             print("Escolha inválida. Tente novamente.")
@@ -92,9 +93,10 @@ while True:
         elif msg == "2":
             print("Escolha o prato que deseja:")
             mostrar_menu(menu_pratos)
-            print("0 - Voltar")
+            print("0 - Voltar ao menu principal")
             usuario["estado"] = "escolhendo_prato"
         elif msg == "0":
+            print("Digite o número da opção desejada:\n1 - Escolher prato\n2 - Escolher bebida")
             usuario["estado"] = "menu"
         else:
             print("Opção inválida. Tente novamente.")
@@ -104,7 +106,7 @@ while True:
         if msg == "1":
             print("Escolha a bebida que deseja:")
             mostrar_menu(menu_bebidas)
-            print("0 - Voltar")
+            print("0 - Voltar ao menu principal")
             usuario["estado"] = "escolhendo_bebida"
         elif msg == "2":
             if "bebida" in pedido and "R$ " in pedido["bebida"]:
@@ -116,6 +118,7 @@ while True:
             print(f"Resumo do pedido:\nPrato: {pedido.get('prato', 'nenhum')}\nBebida: nenhuma\nTotal: R$ {total_formatado}")
             print("1 - Confirmar\n2 - Alterar\n0 - Cancelar")
         elif msg == "0":
+            print("Digite o número da opção desejada:\n1 - Escolher prato\n2 - Escolher bebida")
             usuario["estado"] = "menu"
         else:
             print("Opção inválida. Tente novamente.")
@@ -133,7 +136,8 @@ while True:
             print("Confirmar esta bebida?\n1 - Sim\n2 - Não, quero escolher outra\n0 - Voltar ao menu principal")
             usuario["estado"] = "confirmar_bebida"
         elif msg == "0":
-            usuario["estado"] = "pergunta_bebida"
+            print("Digite o número da opção desejada:\n1 - Escolher prato\n2 - Escolher bebida")
+            usuario["estado"] = "menu"
         else:
             print("Escolha inválida. Tente novamente.")
 
@@ -148,9 +152,10 @@ while True:
         elif msg == "2":
             print("Escolha a bebida que deseja:")
             mostrar_menu(menu_bebidas)
-            print("0 - Voltar")
-            usuario["estado"] = "escolhendo_bebida"
+            print("0 - Voltar ao menu principal")
+            usuario["estado"] = "pergunta_bebida"
         elif msg == "0":
+            print("Digite o número da opção desejada:\n1 - Escolher prato\n2 - Escolher bebida")
             usuario["estado"] = "menu"
         else:
             print("Opção inválida. Tente novamente.")
@@ -158,6 +163,7 @@ while True:
     elif estado == "confirmacao":
         msg = input(">> ")
         if msg == "2":
+            print("Digite o número da opção desejada:\n1 - Escolher prato\n2 - Escolher bebida")
             usuario["estado"] = "menu"
         elif msg == "1":
             try:
