@@ -159,9 +159,8 @@ def whatsapp():
 
     elif estado == "confirmar_bebida":
         if msg == "1":
-            reply.body(f"Bebida confirmada: {pedido['bebida']}")
-            reply.body(f"Resumo do pedido:\nPrato: {pedido.get('prato', 'nenhum')}\nBebida: {pedido.get('bebida', 'nenhuma')}\nTotal: R$ {total:.2f}".replace(
-                ".", ",") + "\n1 - Confirmar\n2 - Alterar\n0 - Cancelar")
+            total_formatado = f"{total:.2f}".replace(".", ",")
+            reply.body(f"Bebida confirmada: {pedido['bebida']}\nResumo do pedido:\nPrato: {pedido.get('prato', 'nenhum')}\nBebida: {pedido.get('bebida', 'nenhuma')}\nTotal: R$ {total_formatado}\n1 - Confirmar\n2 - Alterar\n0 - Cancelar")
             user["estado"] = "confirmacao"
         elif msg == "2":
             texto = "Escolha a bebida que deseja:\n0 - Voltar\n"
@@ -178,7 +177,6 @@ def whatsapp():
 
     elif estado == "confirmacao":
         if msg == "2":
-            reply.body("Você pode alterar seu pedido agora.")
             reply.body(
                 "Digite o número da opção desejada:\n1 - Escolher prato\n2 - Escolher bebida")
             user["estado"] = "menu"

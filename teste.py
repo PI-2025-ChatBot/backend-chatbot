@@ -1,7 +1,7 @@
 from supabase import create_client, Client
 
 SUPABASE_URL = "https://zunahsztxrsteancdzkf.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1bmFoc3p0eHJzdGVhbmNkemtmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1MTQxMjEsImV4cCI6MjA2MTA5MDEyMX0.Wndqn0SjlLfPDPQeSbg0NDijxW4jIH_Yq523wVOQS94"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 TABLE_NAME = "Pedidos"
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
@@ -25,156 +25,156 @@ menu_bebidas = {
     "5": "R$ 6,99 - Água com gás",
     "6": "R$ 4,99 - Água sem gás"
 }
-cancelado = False
-estado = "inicio"
-pedido = {}
-total = 0
+
+usuario = {
+    "estado": "inicio",
+    "pedido": {},
+    "cancelado": False,
+    "total": 0
+}
+numero = input("Digite seu número de WhatsApp: ")
+numero_limpo = numero.strip()
+
+
+def mostrar_menu(dicionario):
+    for key, value in dicionario.items():
+        print(f"{key} - {value}")
+
 
 while True:
+    estado = usuario["estado"]
+    pedido = usuario["pedido"]
+    total = usuario["total"]
+
     if estado == "inicio":
-        print("bot: Olá, aqui é o bot de atendimento do restaurante Comida Boa.")
-        print("bot: Digite o número da opção desejada:\n1 - Escolher prato\n2 - Escolher bebida\n")
-        estado = "menu"
+        print("Olá, aqui é o bot de atendimento do restaurante Comida Boa.")
+        print("Digite o número da opção desejada:\n1 - Escolher prato\n2 - Escolher bebida")
+        usuario["estado"] = "menu"
 
     elif estado == "menu":
-        msg = input("usuario: \n").strip()
+        msg = input(">> ")
         if msg == "1":
-            print("\nbot: Escolha o prato que deseja:")
+            print("Escolha o prato que deseja:")
+            mostrar_menu(menu_pratos)
             print("0 - Voltar")
-            for key, value in menu_pratos.items():
-                print(f"{key} - {value}")
-            estado = "escolhendo_prato"
+            usuario["estado"] = "escolhendo_prato"
         elif msg == "2":
+            print("Escolha a bebida que deseja:")
+            mostrar_menu(menu_bebidas)
             print("0 - Voltar")
-            print("\nbot: Escolha a bebida que deseja:")
-            for key, value in menu_bebidas.items():
-                print(f"{key} - {value}")
-            estado = "escolhendo_bebida"
+            usuario["estado"] = "escolhendo_bebida"
         else:
-            print("\nbot: Opção inválida. Digite 1 ou 2.")
+            print("Opção inválida. Digite 1 ou 2.")
 
     elif estado == "escolhendo_prato":
-        msg = input("usuario: \n").strip()
+        msg = input(">> ")
         if msg in menu_pratos:
             prato_escolhido = menu_pratos[msg]
             if "prato" in pedido:
-                total -= float(pedido["prato"].split("R$ ")
-                               [1].split(" - ")[0].replace(",", "."))
+                total -= float(pedido["prato"].split("R$ ")[1].split(" - ")[0].replace(",", "."))
             pedido["prato"] = prato_escolhido
-            total += float(prato_escolhido.split("R$ ")
-                           [1].split(" - ")[0].replace(",", "."))
-            print(f"\nbot: Você escolheu: {prato_escolhido}")
-            print("bot: Confirmar este prato?\n1 - Sim\n2 - Não, quero escolher outro\n0 - Voltar ao menu principal")
-            estado = "confirmar_prato"
+            total += float(prato_escolhido.split("R$ ")[1].split(" - ")[0].replace(",", "."))
+            usuario["total"] = total
+            print(f"Você escolheu: {prato_escolhido}")
+            print("Confirmar este prato?\n1 - Sim\n2 - Não, quero escolher outro\n0 - Voltar ao menu principal")
+            usuario["estado"] = "confirmar_prato"
         elif msg == "0":
-            estado = "inicio"
+            usuario["estado"] = "menu"
         else:
-            print("\nbot: Escolha inválida. Tente novamente.")
+            print("Escolha inválida. Tente novamente.")
 
     elif estado == "confirmar_prato":
-        msg = input("usuario: \n").strip()
+        msg = input(">> ")
         if msg == "1":
-            print(f"\nbot: Prato confirmado: {pedido['prato']}")
-            print('\nbot: deseja escolher sua bebida?\n0 - voltar\n1 - sim\n2 - não')
-            estado = "pergunta_bebida"
+            print(f"Prato confirmado: {pedido['prato']}")
+            print("Deseja escolher sua bebida?\n1 - Sim\n2 - Não\n0 - Voltar ao menu principal")
+            usuario["estado"] = "pergunta_bebida"
         elif msg == "2":
-            print('\nbot: Escolha o prato que deseja:')
-            print('0 - voltar')
-            for key, value in menu_pratos.items():
-                print(f'{key} - {value}')
-            estado = "escolhendo_prato"
+            print("Escolha o prato que deseja:")
+            mostrar_menu(menu_pratos)
+            print("0 - Voltar")
+            usuario["estado"] = "escolhendo_prato"
         elif msg == "0":
-            estado = "inicio"
+            usuario["estado"] = "menu"
         else:
-            print('\nbot : Opção inválida. Digite 1, 2 ou 0.')
+            print("Opção inválida. Tente novamente.")
 
     elif estado == "pergunta_bebida":
-        msg = input("usuario: \n").strip()
+        msg = input(">> ")
         if msg == "1":
-            print("\nbot: Escolha a bebida que deseja:")
-            for key, value in menu_bebidas.items():
-                print(f"{key} - {value}")
-            estado = "escolhendo_bebida"
+            print("Escolha a bebida que deseja:")
+            mostrar_menu(menu_bebidas)
+            print("0 - Voltar")
+            usuario["estado"] = "escolhendo_bebida"
         elif msg == "2":
+            if "bebida" in pedido and "R$ " in pedido["bebida"]:
+                total -= float(pedido["bebida"].split("R$ ")[1].split(" - ")[0].replace(",", "."))
             pedido["bebida"] = "nenhuma"
-            estado = "resumo"
+            usuario["total"] = total
+            usuario["estado"] = "confirmacao"
+            total_formatado = f"{total:.2f}".replace(".", ",")
+            print(f"Resumo do pedido:\nPrato: {pedido.get('prato', 'nenhum')}\nBebida: nenhuma\nTotal: R$ {total_formatado}")
+            print("1 - Confirmar\n2 - Alterar\n0 - Cancelar")
         elif msg == "0":
-            estado = "inicio"
+            usuario["estado"] = "menu"
         else:
-            print("\nbot: Opção inválida. Digite 1 ou 2.")
+            print("Opção inválida. Tente novamente.")
 
     elif estado == "escolhendo_bebida":
-        msg = input("usuario: \n").strip()
+        msg = input(">> ")
         if msg in menu_bebidas:
             bebida_escolhida = menu_bebidas[msg]
-            if "bebida" in pedido:
-                total -= float(pedido["bebida"].split("R$ ")
-                               [1].split(" - ")[0].replace(",", "."))
+            if "bebida" in pedido and "R$ " in pedido["bebida"]:
+                total -= float(pedido["bebida"].split("R$ ")[1].split(" - ")[0].replace(",", "."))
             pedido["bebida"] = bebida_escolhida
-            total += float(bebida_escolhida.split("R$ ")
-                           [1].split(" - ")[0].replace(",", "."))
-            print(f'\nbot: Você escolheu: {bebida_escolhida}')
-            print('bot: Confirmar esta bebida?\n1 - Sim\n2 - Não, quero escolher outra\n0 - Voltar ao menu principal')
-            estado = "confirmar_bebida"
+            total += float(bebida_escolhida.split("R$ ")[1].split(" - ")[0].replace(",", "."))
+            usuario["total"] = total
+            print(f"Você escolheu: {bebida_escolhida}")
+            print("Confirmar esta bebida?\n1 - Sim\n2 - Não, quero escolher outra\n0 - Voltar ao menu principal")
+            usuario["estado"] = "confirmar_bebida"
         elif msg == "0":
-            estado = "inicio"
+            usuario["estado"] = "pergunta_bebida"
         else:
-            print("\nbot: Escolha inválida. Tente novamente.")
-            print("\nbot: Escolha a bebida que deseja:")
-            for key, value in menu_bebidas.items():
-                print(f"{key} - {value}")
+            print("Escolha inválida. Tente novamente.")
 
     elif estado == "confirmar_bebida":
-        msg = input("usuario: \n").strip()
+        msg = input(">> ")
         if msg == "1":
-            print(f'\nbot: Bebida confirmada: {pedido["bebida"]}')
-            estado = "resumo"
+            total_formatado = f"{total:.2f}".replace(".", ",")
+            print(f"Bebida confirmada: {pedido['bebida']}")
+            print(f"Resumo do pedido:\nPrato: {pedido.get('prato', 'nenhum')}\nBebida: {pedido.get('bebida', 'nenhuma')}\nTotal: R$ {total_formatado}")
+            print("1 - Confirmar\n2 - Alterar\n0 - Cancelar")
+            usuario["estado"] = "confirmacao"
         elif msg == "2":
-            print('\nbot: Escolha a bebida que deseja:')
-            for key, value in menu_bebidas.items():
-                print(f'{key} - {value}')
-            estado = "escolhendo_bebida"
+            print("Escolha a bebida que deseja:")
+            mostrar_menu(menu_bebidas)
+            print("0 - Voltar")
+            usuario["estado"] = "escolhendo_bebida"
         elif msg == "0":
-            estado = "inicio"
+            usuario["estado"] = "menu"
         else:
-            print('\nbot: Opção inválida. Digite 1, 2 ou 0.')
-
-    elif estado == "resumo":
-        print("\nbot: resumo do pedido:")
-        print(f"prato: {pedido.get('prato', 'nenhum')}")
-        print(f"bebida: {pedido.get('bebida', 'nenhuma')}")
-        print(f"Total: R$ {total:.2f}".replace(".", ","))
-        print("\nbot: deseja alterar ou confirmar o pedido?\n0 - cancelar pedido\n1 - alterar\n2 - confirmar pedido")
-        estado = "confirmacao"
+            print("Opção inválida. Tente novamente.")
 
     elif estado == "confirmacao":
-        msg = input("usuario: \n").strip()
-        if msg == "1":
-            estado = "menu"
-            print(
-                "\nbot: Digite o número da opção desejada:\n1 - Escolher prato\n2 - Escolher bebida\n")
-        elif msg == "2":
-            prato = pedido.get('prato', 'nenhum')
-            bebida = pedido.get('bebida', 'nenhuma')
-
-            if cancelado == False:
-                try:
-                    response = supabase.table(TABLE_NAME).insert({
-                        "prato": prato,
-                        "bebida": bebida,
-                        "total": total
-                    }).execute()
-                    print("Pedido armazenado com sucesso!")
-                    numero_pedido = response.data[0]['id']
-                except Exception as e:
-                    print("Erro ao inserir dados no Supabase:", e)
-            print("\nbot: pedido confirmado")
-            print(f"\nbot: número do pedido: {numero_pedido}")
-            print("\nbot: Obrigado pela preferência! Até a próxima!")
-            break
+        msg = input(">> ")
+        if msg == "2":
+            usuario["estado"] = "menu"
+        elif msg == "1":
+            try:
+                result = supabase.table(TABLE_NAME).insert({
+                    "prato": pedido.get('prato', 'nenhum'),
+                    "bebida": pedido.get('bebida', 'nenhuma'),
+                    "total": total,
+                    "numero": numero_limpo
+                }).execute()
+                if result.data:
+                    numero_pedido = result.data[0]['id']
+                    print(f"Pedido confirmado! ✅\nNúmero do pedido: {numero_pedido}\nObrigado pela preferência! Até a próxima! 👋")
+                break
+            except Exception as e:
+                print("Erro ao registrar o pedido. Tente novamente.")
         elif msg == "0":
-            print("Até mais!")
-            cancelado = True
+            print("Pedido cancelado. Até mais! 👋")
             break
         else:
-            print("\nbot: Opção inválida. Digite 0, 1 ou 2.")
+            print("Opção inválida. Tente novamente.")
