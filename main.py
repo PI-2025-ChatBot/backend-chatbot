@@ -33,7 +33,7 @@ menu_bebidas = {
 usuarios = {}
 
 
-@app.route("/whatsapp", methods=["POST"])
+@app.route("/mensagem", methods=["POST"])
 def whatsapp():
     numero = request.form.get("From")
     numero_limpo = numero.replace("whatsapp:", "")
