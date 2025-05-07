@@ -33,7 +33,7 @@ menu_bebidas = {
 usuarios = {}
 
 
-@app.route("/whatsapp", methods=["POST"])
+@app.route("/mensagem", methods=["POST"])
 def whatsapp():
     numero = request.form.get("From")
     numero_limpo = numero.replace("whatsapp:", "")
@@ -55,7 +55,7 @@ def whatsapp():
     total = user["total"]
     
     if estado == "inicio":
-        reply.body("Olá, aqui é o bot de atendimento do restaurante Comida Boa.\nDigite o número da opção desejada:\n1 - Escolher prato\n2 - Escolher bebida")
+        reply.body("Olá, aqui é o bot de atendimento do restaurante Comida Boa.\nDigite o número da opção desejada:\n0 - Cancelar pedido\n1 - Escolher prato\n2 - Escolher bebida")
         user["estado"] = "menu"
 
     elif estado == "menu":
@@ -63,15 +63,18 @@ def whatsapp():
             texto = "Escolha o prato que deseja:\n"
             for key, value in menu_pratos.items():
                 texto += f"{key} - {value}\n"
-            texto += "0 - Voltar\n"
+            texto += "0 - Voltar ao menu principal\n"
             reply.body(texto)
             user["estado"] = "escolhendo_prato"
         elif msg == "2":
-            texto = "Escolha a bebida que deseja:\n0 - Voltar\n"
+            texto = "Escolha a bebida que deseja:\n0 - Voltar ao menu principal\n"
             for key, value in menu_bebidas.items():
                 texto += f"{key} - {value}\n"
             reply.body(texto)
             user["estado"] = "escolhendo_bebida"
+        elif msg == "0":
+            reply.body("Pedido cancelado. Até mais! 👋")
+            usuarios.pop(numero)
         else:
             reply.body("Opção inválida. Digite 1 ou 2.")
 
@@ -89,27 +92,27 @@ def whatsapp():
                 f"Você escolheu: {prato_escolhido}\nConfirmar este prato?\n1 - Sim\n2 - Não, quero escolher outro\n0 - Voltar ao menu principal")
             user["estado"] = "confirmar_prato"
         elif msg == "0":
-            user["estado"] = "menu"
             reply.body(
-                "Digite o número da opção desejada:\n1 - Escolher prato\n2 - Escolher bebida")
+                "Digite o número da opção desejada:\n0 - Cancelar pedido\n1 - Escolher prato\n2 - Escolher bebida")
+            user["estado"] = "menu"
         else:
             reply.body("Escolha inválida. Tente novamente.")
 
     elif estado == "confirmar_prato":
         if msg == "1":
             reply.body(
-                f"Prato confirmado: {pedido['prato']}\nDeseja escolher sua bebida?\n1 - Sim\n2 - Não\n0 - Voltar ao menu principal")
+                f"Prato confirmado: {pedido['prato']}\nDeseja escolher sua bebida?\0 - Voltar ao menu principal\n1 - Sim\n2 - Não\n")
             user["estado"] = "pergunta_bebida"
         elif msg == "2":
-            texto = "Escolha o prato que deseja:\n0 - Voltar\n"
+            texto = "Escolha o prato que deseja:\n0 - Voltar ao menu principal\n"
             for key, value in menu_pratos.items():
                 texto += f"{key} - {value}\n"
             reply.body(texto)
             user["estado"] = "escolhendo_prato"
         elif msg == "0":
-            user["estado"] = "menu"
             reply.body(
-                "Digite o número da opção desejada:\n1 - Escolher prato\n2 - Escolher bebida")
+                "Digite o número da opção desejada:\n0 - Cancelar pedido\n1 - Escolher prato\n2 - Escolher bebida")
+            user["estado"] = "menu"
         else:
             reply.body("Opção inválida. Tente novamente.")
 
@@ -118,7 +121,7 @@ def whatsapp():
             texto = "Escolha a bebida que deseja:\n"
             for key, value in menu_bebidas.items():
                 texto += f"{key} - {value}\n"
-            texto += "0 - Voltar\n"
+            texto += "0 - Voltar ao menu principal\n"
             reply.body(texto)
             user["estado"] = "escolhendo_bebida"
         elif msg == "2":
@@ -131,9 +134,9 @@ def whatsapp():
             reply.body(f"Resumo do pedido:\nPrato: {pedido.get('prato', 'nenhum')}\nBebida: nenhuma\nTotal: R$ {total:.2f}".replace(
                 ".", ",") + "\n1 - Confirmar\n2 - Alterar\n0 - Cancelar")
         elif msg == "0":
-            user["estado"] = "menu"
             reply.body(
-                "Digite o número da opção desejada:\n1 - Escolher prato\n2 - Escolher bebida")
+                "Digite o número da opção desejada:\n0 - Cancelar pedido\n1 - Escolher prato\n2 - Escolher bebida")
+            user["estado"] = "menu"
         else:
             reply.body("Opção inválida. Tente novamente.")
 
@@ -151,36 +154,34 @@ def whatsapp():
                 f"Você escolheu: {bebida_escolhida}\nConfirmar esta bebida?\n1 - Sim\n2 - Não, quero escolher outra\n0 - Voltar ao menu principal")
             user["estado"] = "confirmar_bebida"
         elif msg == "0":
-            user["estado"] = "pergunta_bebida"
             reply.body(
-                f"Prato confirmado: {pedido['prato']}\nDeseja escolher sua bebida?\n1 - Sim\n2 - Não\n0 - Voltar ao menu principal")
+                "Digite o número da opção desejada:\n0 - Cancelar pedido\n1 - Escolher prato\n2 - Escolher bebida")
+            user["estado"] = "menu"
         else:
             reply.body("Escolha inválida. Tente novamente.")
 
     elif estado == "confirmar_bebida":
         if msg == "1":
-            reply.body(f"Bebida confirmada: {pedido['bebida']}")
-            reply.body(f"Resumo do pedido:\nPrato: {pedido.get('prato', 'nenhum')}\nBebida: {pedido.get('bebida', 'nenhuma')}\nTotal: R$ {total:.2f}".replace(
-                ".", ",") + "\n1 - Confirmar\n2 - Alterar\n0 - Cancelar")
+            total_formatado = f"{total:.2f}".replace(".", ",")
+            reply.body(f"Bebida confirmada: {pedido['bebida']}\nResumo do pedido:\nPrato: {pedido.get('prato', 'nenhum')}\nBebida: {pedido.get('bebida', 'nenhuma')}\nTotal: R$ {total_formatado}\n1 - Confirmar\n2 - Alterar\n0 - Cancelar")
             user["estado"] = "confirmacao"
         elif msg == "2":
-            texto = "Escolha a bebida que deseja:\n0 - Voltar\n"
+            texto = "Escolha a bebida que deseja:\n0 - Voltar ao menu principal\n"
             for key, value in menu_bebidas.items():
                 texto += f"{key} - {value}\n"
             reply.body(texto)
             user["estado"] = "escolhendo_bebida"
         elif msg == "0":
-            user["estado"] = "menu"
             reply.body(
-                "Digite o número da opção desejada:\n1 - Escolher prato\n2 - Escolher bebida")
+                "Digite o número da opção desejada:\n0 - Cancelar pedido\n1 - Escolher prato\n2 - Escolher bebida")
+            user["estado"] = "menu"
         else:
             reply.body("Opção inválida. Tente novamente.")
 
     elif estado == "confirmacao":
         if msg == "2":
-            reply.body("Você pode alterar seu pedido agora.")
             reply.body(
-                "Digite o número da opção desejada:\n1 - Escolher prato\n2 - Escolher bebida")
+                "Digite o número da opção desejada:\n0 - Cancelar pedido\n1 - Escolher prato\n2 - Escolher bebida")
             user["estado"] = "menu"
         elif msg == "1":
             try:
