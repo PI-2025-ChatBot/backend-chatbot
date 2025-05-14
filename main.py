@@ -71,7 +71,7 @@ def whatsapp():
 
     elif estado == "escolhendo_prato":
         if int(msg) in menu_pratos:
-            prato_escolhido = menu_pratos[msg]
+            prato_escolhido = menu_pratos[int(msg)]
             if "prato" in pedido:
                 total -= float(pedido["prato"].split("R$ ")
                                [1].split(" - ")[0].replace(",", "."))
@@ -134,7 +134,7 @@ def whatsapp():
 
     elif estado == "escolhendo_bebida":
         if int(msg) in menu_bebidas:
-            bebida_escolhida = menu_bebidas[msg]
+            bebida_escolhida = menu_bebidas[int(msg)]
             if "bebida" in pedido and "R$ " in pedido["bebida"]:
                 total -= float(pedido["bebida"].split("R$ ")
                                [1].split(" - ")[0].replace(",", "."))
