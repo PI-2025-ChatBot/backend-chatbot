@@ -11,10 +11,12 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 menu_pratos = {}
 menu_bebidas = {}
 
-select_pratos = supabase.table("Cardapio").select("*").eq("tipo", "prato").execute()
+select_pratos = supabase.table("Cardapio").select(
+    "*").eq("tipo", "prato").execute()
 select_pratos.data
 
-select_bebidas = supabase.table("Cardapio").select("*").eq("tipo", "bebida").execute()
+select_bebidas = supabase.table("Cardapio").select(
+    "*").eq("tipo", "bebida").execute()
 select_bebidas.data
 
 for prato in select_pratos.data:
@@ -24,6 +26,7 @@ for bebida in select_bebidas.data:
     menu_bebidas[bebida["id"]] = f"R$ {bebida['preco']} - {bebida['nome']}"
 
 usuarios = {}
+
 
 @app.route("/mensagem", methods=["POST"])
 def whatsapp():
@@ -44,7 +47,7 @@ def whatsapp():
     estado = user["estado"]
     pedido = user["pedido"]
     total = user["total"]
-    
+
     if estado == "inicio":
         reply.body("Olá, aqui é o bot de atendimento do restaurante Comida Boa.\nDigite o número da opção desejada:\n1 - Escolher prato\n2 - Escolher bebida\n0 - Cancelar pedido")
         user["estado"] = "menu"
@@ -76,7 +79,8 @@ def whatsapp():
                 total -= float(pedido["prato"].split("R$ ")
                                [1].split(" - ")[0].replace(",", "."))
             pedido["prato"] = prato_escolhido
-            descricao_prato = supabase.table("Cardapio").select("Descricao").eq("id", msg).execute()
+            descricao_prato = supabase.table("Cardapio").select(
+                "descricao").eq("id", msg).execute()
             total += float(prato_escolhido.split("R$ ")
                            [1].split(" - ")[0].replace(",", "."))
             user["total"] = total
@@ -155,13 +159,14 @@ def whatsapp():
     elif estado == "confirmar_bebida":
         if msg == "1":
             total_formatado = f"{total:.2f}".replace(".", ",")
-            reply.body(f"Bebida confirmada: {pedido['bebida']}\nResumo do pedido:\nPrato: {pedido.get('prato', 'nenhum')}\nBebida: {pedido.get('bebida', 'nenhuma')}\nTotal: R$ {total_formatado}\n1 - Confirmar\n2 - Alterar\n0 - Cancelar")
+            reply.body(
+                f"Bebida confirmada: {pedido['bebida']}\nResumo do pedido:\nPrato: {pedido.get('prato', 'nenhum')}\nBebida: {pedido.get('bebida', 'nenhuma')}\nTotal: R$ {total_formatado}\n1 - Confirmar\n2 - Alterar\n0 - Cancelar")
             user["estado"] = "confirmacao"
         elif msg == "2":
             texto = "Escolha a bebida que deseja:\n"
             for key, value in menu_bebidas.items():
                 texto += f"{key} - {value}\n"
-                texto+="\n0 - Voltar ao menu principal"
+                texto += "\n0 - Voltar ao menu principal"
             reply.body(texto)
             user["estado"] = "escolhendo_bebida"
         elif msg == "0":
