@@ -81,7 +81,7 @@ def whatsapp():
                            [1].split(" - ")[0].replace(",", "."))
             user["total"] = total
             reply.body(
-                f"Você escolheu: {prato_escolhido}\n\n{descricao_prato.data[0]["descricao"]}Confirmar este prato?\n1 - Sim\n2 - Não, quero escolher outro\n0 - Voltar ao menu principal")
+                f"Você escolheu: {prato_escolhido}\n{descricao_prato.data[0]['descricao']}.\nConfirmar este prato?\n1 - Sim\n2 - Não, quero escolher outro\n0 - Voltar ao menu principal")
             user["estado"] = "confirmar_prato"
         elif msg == "0":
             reply.body(
