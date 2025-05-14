@@ -6,50 +6,41 @@ app = Flask(__name__)
 
 SUPABASE_URL = "https://zunahsztxrsteancdzkf.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1bmFoc3p0eHJzdGVhbmNkemtmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1MTQxMjEsImV4cCI6MjA2MTA5MDEyMX0.Wndqn0SjlLfPDPQeSbg0NDijxW4jIH_Yq523wVOQS94"
-TABLE_NAME = "Pedidos"
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-menu_pratos = {
-    "1": "R$ 26,99 - Salada com file de frango",
-    "2": "R$ 26,99 - Salada com atum",
-    "3": "R$ 31,99 - Salada com kibe vegano ou quiche",
-    "4": "R$ 27,99 - Salada ceaser",
-    "5": "R$ 26,99 - Salada com omelete",
-    "6": "R$ 28,99 - Filé de frango grelhado",
-    "7": "R$ 28,99 - Linguiça calabresa acebolada",
-    "8": "R$ 28,99 - Linguiça toscana grelhada",
-    "9": "R$ 28,99 - Nuggets de frango"
-}
+menu_pratos = {}
+menu_bebidas = {}
 
-menu_bebidas = {
-    "1": "R$ 5,99 - Coca-Cola",
-    "2": "R$ 5,99 - Coca-Cola Zero",
-    "3": "R$ 7,99 - Suco de laranja",
-    "4": "R$ 7,99 - Suco de uva",
-    "5": "R$ 6,99 - Água com gás",
-    "6": "R$ 4,99 - Água sem gás"
-}
+select_pratos = supabase.table("Cardapio").select("*").eq("tipo", "prato").execute()
+select_pratos.data
+
+select_bebidas = supabase.table("Cardapio").select("*").eq("tipo", "bebida").execute()
+select_bebidas.data
+
+for prato in select_pratos.data:
+    menu_pratos[prato["id"]] = f"R$ {prato['preco']} - {prato['nome']}"
+
+for bebida in select_bebidas.data:
+    menu_bebidas[bebida["id"]] = f"R$ {bebida['preco']} - {bebida['nome']}"
 
 usuarios = {}
 
-
 @app.route("/mensagem", methods=["POST"])
 def whatsapp():
-    numero = request.form.get("From")
-    numero_limpo = numero.replace("whatsapp:", "")
+    email = request.form.get("From")
     msg = request.form.get("Body").strip()
     response = MessagingResponse()
     reply = response.message()
 
-    if numero not in usuarios:
-        usuarios[numero] = {
+    if email not in usuarios:
+        usuarios[email] = {
             "estado": "inicio",
             "pedido": {},
             "cancelado": False,
             "total": 0
         }
 
-    user = usuarios[numero]
+    user = usuarios[email]
     estado = user["estado"]
     pedido = user["pedido"]
     total = user["total"]
@@ -74,7 +65,7 @@ def whatsapp():
             user["estado"] = "escolhendo_bebida"
         elif msg == "0":
             reply.body("Pedido cancelado. Até mais! 👋")
-            usuarios.pop(numero)
+            usuarios.pop(email)
         else:
             reply.body("Opção inválida. Digite 1 ou 2.")
 
@@ -85,11 +76,12 @@ def whatsapp():
                 total -= float(pedido["prato"].split("R$ ")
                                [1].split(" - ")[0].replace(",", "."))
             pedido["prato"] = prato_escolhido
+            descricao_prato = supabase.table("Cardapio").select("Descricao").eq("id", msg).execute()
             total += float(prato_escolhido.split("R$ ")
                            [1].split(" - ")[0].replace(",", "."))
             user["total"] = total
             reply.body(
-                f"Você escolheu: {prato_escolhido}\nConfirmar este prato?\n1 - Sim\n2 - Não, quero escolher outro\n0 - Voltar ao menu principal")
+                f"Você escolheu: {prato_escolhido}\n\n{descricao_prato.data[0]["descricao"]}Confirmar este prato?\n1 - Sim\n2 - Não, quero escolher outro\n0 - Voltar ao menu principal")
             user["estado"] = "confirmar_prato"
         elif msg == "0":
             reply.body(
@@ -186,22 +178,22 @@ def whatsapp():
             user["estado"] = "menu"
         elif msg == "1":
             try:
-                result = supabase.table(TABLE_NAME).insert({
+                result = supabase.table("Pedidos").insert({
                     "prato": pedido.get('prato', 'nenhum'),
                     "bebida": pedido.get('bebida', 'nenhuma'),
                     "total": total,
-                    "numero": numero_limpo
+                    "email": email
                 }).execute()
                 if result.data:
-                    numero_pedido = result.data[0]['id']
+                    email_pedido = result.data[0]['id']
                     reply.body(
-                        f"Pedido confirmado! ✅\nNúmero do pedido: {numero_pedido}\nObrigado pela preferência! Até a próxima! 👋")
-                usuarios.pop(numero)
+                        f"Pedido confirmado! ✅\nNúmero do pedido: {email_pedido}\nObrigado pela preferência! Até a próxima! 👋")
+                usuarios.pop(email)
             except Exception as e:
                 reply.body("Erro ao registrar o pedido. Tente novamente.")
         elif msg == "0":
             reply.body("Pedido cancelado. Até mais! 👋")
-            usuarios.pop(numero)
+            usuarios.pop(email)
         else:
             reply.body("Opção inválida. Tente novamente.")
 
