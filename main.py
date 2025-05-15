@@ -20,13 +20,12 @@ select_bebidas = supabase.table("Cardapio").select(
 select_bebidas.data
 
 for prato in select_pratos.data:
-    menu_pratos[prato["id"]] = f"R$ {prato['preco']} - {prato['nome']}"
+    menu_pratos[prato["id"]] = f"R$ {prato['preco']:.2f} - {prato['nome']}"
 
 for bebida in select_bebidas.data:
-    menu_bebidas[bebida["id"]] = f"R$ {bebida['preco']} - {bebida['nome']}"
+    menu_bebidas[bebida["id"]] = f"R$ {bebida['preco']:.2f} - {bebida['nome']}"
 
 usuarios = {}
-
 
 @app.route("/mensagem", methods=["POST"])
 def whatsapp():

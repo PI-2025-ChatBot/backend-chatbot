@@ -21,10 +21,6 @@ for prato in select_pratos.data:
     menu_pratos[prato["id"]] = f"R$ {prato['preco']} - {prato['nome']}"
 
 for bebida in select_bebidas.data:
-    menu_bebidas[bebida["id"]] = f"R$ {bebida['preco']} - {bebida['nome']}"
+    menu_bebidas[bebida["id"]] = f"R$ {bebida['preco']:.2f} - {bebida['nome']}"
 
-msg = input("Digite a mensagem: ")
-
-    print("Prato escolhido")
-else:
-    print("Prato não encontrado")
+print(menu_bebidas)
