@@ -12,11 +12,12 @@ menu_pratos = {}
 menu_bebidas = {}
 
 select_pratos = supabase.table("Cardapio_Pratos").select(
-    "*").execute()
+    "*").order(column="id", desc=False).execute()
 select_pratos.data
+print(select_pratos)
 
 select_bebidas = supabase.table("Cardapio_Bebidas").select(
-    "*").execute()
+    "*").order(column="id", desc=False).execute()
 select_bebidas.data
 
 for prato in select_pratos.data:
