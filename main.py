@@ -11,8 +11,7 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 menu_pratos = {}
 menu_bebidas = {}
 
-select_pratos = supabase.table("Cardapio_Pratos").select(
-    "*").execute()
+select_pratos = select_pratos = supabase.table("Cardapio_Pratos").select("*").order("id", asc=True).execute()
 select_pratos.data
 
 select_bebidas = supabase.table("Cardapio_Bebidas").select(
