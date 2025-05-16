@@ -78,7 +78,7 @@ def whatsapp():
                 total -= float(pedido["prato"].split("R$ ")
                                [1].split(" - ")[0].replace(",", "."))
             pedido["prato"] = prato_escolhido
-            descricao_prato = supabase.table("Cardapio").select(
+            descricao_prato = supabase.table("Cardapio_Pratos").select(
                 "descricao").eq("id", msg).execute()
             total += float(prato_escolhido.split("R$ ")
                            [1].split(" - ")[0].replace(",", "."))
