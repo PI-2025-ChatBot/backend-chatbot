@@ -99,4 +99,5 @@ Estes testes não rodarão pois estão com erros, afinal não criamos as classes
 test_criar_menu: 
 <img src="imanges_testes/print_criar_menu.png">
 
+test_select_banco:  
 <img src="imanges_testes/print_select_banco.png">
