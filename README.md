@@ -95,4 +95,8 @@ Estes testes não rodarão pois estão com erros, afinal não criamos as classes
   pytest tests/test_select_banco.py
   ```
 
-## Passo 4 - Analisando o resultado dos testes  
+## Passo 4 - Analisando o resultado dos testes
+test_criar_menu: 
+<img src="imanges_testes/print_criar_menu.png">
+
+<img src="imanges_testes/print_select_banco.png">
