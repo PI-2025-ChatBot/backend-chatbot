@@ -1,7 +1,7 @@
 from flask import Flask, request
 from twilio.twiml.messaging_response import MessagingResponse
 from supabase import create_client, Client
-
+from datetime import datetime, timedelta
 app = Flask(__name__)
 
 SUPABASE_URL = "https://zunahsztxrsteancdzkf.supabase.co"
@@ -14,7 +14,6 @@ menu_bebidas = {}
 select_pratos = supabase.table("Cardapio_Pratos").select(
     "*").order(column="id", desc=False).execute()
 select_pratos.data
-print(select_pratos)
 
 select_bebidas = supabase.table("Cardapio_Bebidas").select(
     "*").order(column="id", desc=False).execute()
@@ -34,23 +33,38 @@ def whatsapp():
     msg = request.form.get("Body").strip()
     response = MessagingResponse()
     reply = response.message()
-
+    now = datetime.now()
+    
+    if email in usuarios:
+        ultima_interacao = usuarios[email]["ultima_interacao"]
+        if now - ultima_interacao > timedelta(seconds=10.0):
+            reply.body("Atendimento encerrado por inatividade. Por favor, envie uma nova mensagem para começar de novo.")
+            usuarios.pop(email)
+            return str(response)
+    
     if email not in usuarios:
         usuarios[email] = {
             "estado": "inicio",
             "pedido": {},
             "cancelado": False,
-            "total": 0
+            "total": 0,
+            "ultima_interacao": now
         }
 
     user = usuarios[email]
     estado = user["estado"]
     pedido = user["pedido"]
     total = user["total"]
+    user["ultima_interacao"] = now
 
     if estado == "inicio":
-        reply.body("Olá, aqui é o bot de atendimento do restaurante Comida Boa.\nDigite o número da opção desejada:\n1 - Escolher prato\n2 - Escolher bebida\n0 - Cancelar pedido")
-        user["estado"] = "menu"
+        pedidos_ativos = supabase.table("Pedidos").select("id").eq("email", email).eq("ativo", "Aberto").execute()
+        if len(pedidos_ativos.data) >= 2:
+            reply.body("Você já possui 2 pedidos ativos. Finalize algum deles antes de realizar um novo pedido.")
+            usuarios.pop(email)
+        else:
+            reply.body("Olá, aqui é o bot de atendimento do restaurante Comida Boa.\nDigite o número da opção desejada:\n1 - Escolher prato\n2 - Escolher bebida\n0 - Cancelar pedido")
+            user["estado"] = "menu"
 
     elif estado == "menu":
         if msg == "1":
@@ -190,9 +204,9 @@ def whatsapp():
                     "email": email
                 }).execute()
                 if result.data:
-                    email_pedido = result.data[0]['id']
+                    num_pedido = result.data[0]['id']
                     reply.body(
-                        f"Pedido confirmado! ✅\nNúmero do pedido: {email_pedido}\nObrigado pela preferência! Até a próxima! 👋")
+                        f"Pedido confirmado! ✅\nNúmero do pedido: {num_pedido}\nObrigado pela preferência! Até a próxima! 👋")
                 usuarios.pop(email)
             except Exception as e:
                 reply.body("Erro ao registrar o pedido. Tente novamente.")
