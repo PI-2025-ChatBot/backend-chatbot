@@ -11,10 +11,12 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 menu_pratos = {}
 menu_bebidas = {}
 
-select_pratos = supabase.table("Cardapio").select("*").eq("tipo", "prato").execute()
+select_pratos = supabase.table("Cardapio").select(
+    "*").eq("tipo", "prato").execute()
 select_pratos.data
 
-select_bebidas = supabase.table("Cardapio").select("*").eq("tipo", "bebida").execute()
+select_bebidas = supabase.table("Cardapio").select(
+    "*").eq("tipo", "bebida").execute()
 select_bebidas.data
 
 for prato in select_pratos.data:

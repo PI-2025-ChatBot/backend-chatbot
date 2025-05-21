@@ -27,6 +27,7 @@ for bebida in select_bebidas.data:
 
 usuarios = {}
 
+
 @app.route("/mensagem", methods=["POST"])
 def whatsapp():
     email = request.form.get("From")
@@ -34,14 +35,15 @@ def whatsapp():
     response = MessagingResponse()
     reply = response.message()
     now = datetime.now()
-    
+
     if email in usuarios:
         ultima_interacao = usuarios[email]["ultima_interacao"]
         if now - ultima_interacao > timedelta(minutes=5.0):
-            reply.body("Atendimento encerrado por inatividade. Por favor, envie uma nova mensagem para começar de novo.")
+            reply.body(
+                "Atendimento encerrado por inatividade. Por favor, envie uma nova mensagem para começar de novo.")
             usuarios.pop(email)
             return str(response)
-    
+
     if email not in usuarios:
         usuarios[email] = {
             "estado": "inicio",
@@ -58,9 +60,11 @@ def whatsapp():
     user["ultima_interacao"] = now
 
     if estado == "inicio":
-        pedidos_ativos = supabase.table("Pedidos").select("id").eq("email", email).eq("ativo", "Aberto").execute()
+        pedidos_ativos = supabase.table("Pedidos").select("id").eq(
+            "email", email).eq("ativo", "Aberto").execute()
         if len(pedidos_ativos.data) >= 2:
-            reply.body("Você já possui 2 pedidos ativos. Finalize algum deles antes de realizar um novo pedido.")
+            reply.body(
+                "Você já possui 2 pedidos ativos. Finalize algum deles antes de realizar um novo pedido.")
             usuarios.pop(email)
         else:
             reply.body("Olá, aqui é o bot de atendimento do restaurante Comida Boa.\nDigite o número da opção desejada:\n1 - Escolher prato\n2 - Escolher bebida\n0 - Cancelar pedido")
@@ -87,7 +91,7 @@ def whatsapp():
             reply.body("Opção inválida. Digite 1 ou 2.")
 
     elif estado == "escolhendo_prato":
-        if int(msg) in menu_pratos:
+        if msg.isdigit() and int(msg) in menu_pratos:
             prato_escolhido = menu_pratos[int(msg)]
             if "prato" in pedido:
                 total -= float(pedido["prato"].split("R$ ")
@@ -151,7 +155,7 @@ def whatsapp():
             reply.body("Opção inválida. Tente novamente.")
 
     elif estado == "escolhendo_bebida":
-        if int(msg) in menu_bebidas:
+        if msg.isdigit() and int(msg) in menu_bebidas:
             bebida_escolhida = menu_bebidas[int(msg)]
             if "bebida" in pedido and "R$ " in pedido["bebida"]:
                 total -= float(pedido["bebida"].split("R$ ")
@@ -175,12 +179,12 @@ def whatsapp():
             total_formatado = f"{total:.2f}".replace(".", ",")
             reply.body(
                 f"Bebida confirmada: {pedido['bebida']}\nDeseja adicionar alguma observação ao seu pedido?\n1 - Sim, desejo adicionar\n2 - Não, não desejo adicionar\n0 - Voltar ao menu principal")
-            user["estado"] = "obersavacao"
+            user["estado"] = "observacao"
         elif msg == "2":
             texto = "Escolha a bebida que deseja:\n"
             for key, value in menu_bebidas.items():
                 texto += f"{key} - {value}\n"
-                texto += "\n0 - Voltar ao menu principal"
+            texto += "\n0 - Voltar ao menu principal"
             reply.body(texto)
             user["estado"] = "escolhendo_bebida"
         elif msg == "0":
@@ -190,20 +194,28 @@ def whatsapp():
         else:
             reply.body("Opção inválida. Tente novamente.")
 
-    elif estado == "obersavacao":
+    elif estado == "observacao":
         if msg == "1":
             reply.body("Digite sua observação:")
-            pedido["observacao"] = request.form.get("Body")
-            reply.body(f"obs adicionada com sucesso!")
+            user["estado"] = "aguardando_observacao"
         elif msg == "2":
-            reply.body(f"Resumo do pedido:\nPrato: {pedido.get('prato', 'nenhum')}\nBebida: {pedido.get('bebida', 'nenhuma')}\nObservação: {pedido.get('observacao', 'nenhum')}\nTotal: R$ {total_formatado}\n\n1 - Confirmar pedido\n2 - Alterar pedido\n0 - Cancelar pedido")
+            total_formatado = f"{user['total']:.2f}".replace(".", ",")
+            reply.body(
+                f"Resumo do pedido:\nPrato: {pedido.get('prato', 'nenhum')}\nBebida: {pedido.get('bebida', 'nenhuma')}\nObservação: {pedido.get('observacao', 'nenhum')}\nTotal: R$ {total_formatado}\n\n1 - Confirmar pedido\n2 - Alterar pedido\n0 - Cancelar pedido")
             user["estado"] = "confirmacao"
         elif msg == "0":
             reply.body(
                 "Digite o número da opção desejada:\n1 - Escolher prato\n2 - Escolher bebida\n0 - Cancelar pedido")
             user["estado"] = "menu"
         else:
-            reply.body("Opção inválida. Tente novamente.")        
+            reply.body("Opção inválida. Tente novamente.")
+
+    elif estado == "aguardando_observacao":
+        pedido["observacao"] = msg
+        total_formatado = f"{user['total']:.2f}".replace(".", ",")
+        reply.body(
+            f"Resumo do pedido:\nPrato: {pedido.get('prato', 'nenhum')}\nBebida: {pedido.get('bebida', 'nenhuma')}\nObservação: {pedido.get('observacao', 'nenhum')}\nTotal: R$ {total_formatado}\n\n1 - Confirmar pedido\n2 - Alterar pedido\n0 - Cancelar pedido")
+        user["estado"] = "confirmacao"
 
     elif estado == "confirmacao":
         if msg == "2":
