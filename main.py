@@ -91,7 +91,7 @@ def whatsapp():
             reply.body("Opção inválida. Digite 1 ou 2.")
 
     elif estado == "escolhendo_prato":
-        if msg.isdigit() and int(msg) in menu_pratos:
+        if int(msg) in menu_pratos:
             prato_escolhido = menu_pratos[int(msg)]
             if "prato" in pedido:
                 total -= float(pedido["prato"].split("R$ ")
@@ -155,7 +155,7 @@ def whatsapp():
             reply.body("Opção inválida. Tente novamente.")
 
     elif estado == "escolhendo_bebida":
-        if msg.isdigit() and int(msg) in menu_bebidas:
+        if int(msg) in menu_bebidas:
             bebida_escolhida = menu_bebidas[int(msg)]
             if "bebida" in pedido and "R$ " in pedido["bebida"]:
                 total -= float(pedido["bebida"].split("R$ ")
