@@ -1,4 +1,4 @@
-# Chatbot e Gerenciador de pedidos - Poliedro
+# Chatbot - Poliedro
 
 # Autoria
 - Mitchell Santana Miyake, 23.10270-5 
