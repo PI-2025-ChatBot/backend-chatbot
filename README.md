@@ -1,10 +1,11 @@
-# chatbot
-<h1>[TIME DEV] Tutorial para conseguir executar local, já com o banco de dados</h1>
-<div style="display: flex; gap: 10px; flex-wrap: wrap;">
-  <img src="./imagens_tutorial/image.png">
-  <img src="./imagens_tutorial/image2.png">
-  <img src="./imagens_tutorial/image3.png">
-  <img src="./imagens_tutorial/image4.png">
-  <img src="./imagens_tutorial/image5.png">
-  <img src="./imagens_tutorial/image6.png">
-</div>
+# Chatbot e Gerenciador de pedidos - Poliedro
+
+# Autoria
+- Mitchell Santana Miyake, 23.10270-5 
+- Enrico Orlando Bernardi de Oliveira, 23.01355-9 
+- Arthur Baptista Falzetta, 23.00800-8 
+- Murilo Sucupira Sacchi, 23.10260-8 
+- Ramon Santos Pereira, 22.00049-6 
+- Caue de Oliveira Almiron, 24.01734-5
+
+# Sobre
