@@ -1,4 +1,4 @@
-# Chatbot - Poliedro
+# Chatbot - Poliedro [Back-end]
 
 # Autoria
 - Mitchell Santana Miyake, 23.10270-5 
